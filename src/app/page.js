@@ -1,14 +1,41 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CoreSAL } from "./CoreSAL";
 import styles from "./styles.module.css";
 import bg from "./assets/board.jpg";
 
 const Dice = ({ onRoll, randomGenerator }) => {
+  const [diceValue, setDiceValue] = useState(1);
   const getDiceValue = () => {
     return Math.floor(randomGenerator() * 6) + 1;
   };
-  return <div onClick={() => onRoll(getDiceValue())}>CLICK DICE</div>;
+  return (
+    <div
+      className="flex flex-col items-center justify-around"
+      style={{ width: "200px", height: "100px" }}
+    >
+      <h2>Click to Roll Dice</h2>
+      <div
+        style={{
+          width: "50px",
+          height: "50px",
+          backgroundColor: "antiquewhite",
+          borderRadius: "15%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          cursor: "pointer",
+        }}
+        onClick={() => {
+          const value = getDiceValue();
+          setDiceValue(value);
+          onRoll(value);
+        }}
+      >
+        {diceValue}
+      </div>
+    </div>
+  );
 };
 
 const Cell = ({ players, cellPosition }) => {
