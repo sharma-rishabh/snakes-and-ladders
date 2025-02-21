@@ -13,17 +13,18 @@ const Dice = ({ onRoll, randomGenerator }) => {
 
 const Cell = ({ players, cellPosition }) => {
   return (
-    <div key={cellPosition} id={cellPosition} className={styles.cell}>
+    <div
+      key={cellPosition}
+      id={cellPosition}
+      className={`${styles.cell} flex justify-around items-center`}
+    >
       {players.map((player, playerIndex) => {
-        return (
-          <div key={playerIndex} style={{ color: player.color }}>
-            {"O"}
-          </div>
-        );
+        return <PlayerToken key={playerIndex} player={player} size={10} />;
       })}
     </div>
   );
 };
+
 const Board = ({ board }) => {
   return (
     <div
@@ -42,16 +43,65 @@ const Board = ({ board }) => {
     </div>
   );
 };
+
+const PlayerToken = ({ player, size }) => {
+  const ping = player.isPlaying ? "animate-ping" : "";
+  return (
+    <span className="relative flex">
+      <span
+        className={`absolute inline-flex ${ping} opacity-75`}
+        style={{
+          backgroundColor: player.color,
+          width: size,
+          height: size,
+          borderRadius: "50%",
+        }}
+      ></span>
+      <span
+        className="opacity-80"
+        style={{
+          backgroundColor: player.color,
+          width: size,
+          height: size,
+          borderRadius: "50%",
+        }}
+      ></span>
+    </span>
+  );
+};
+
+const PlayersHeader = ({ players }) => {
+  return (
+    <div className="flex flex-col items-center w-full">
+      <h1>Players</h1>
+      <div className="flex justify-around w-full">
+        {players.map((player, playerIndex) => {
+          return (
+            <div
+              key={playerIndex}
+              className="flex flex-col items-center justify-around h-24"
+            >
+              <h4>{player.name}</h4>
+              <PlayerToken player={player} size={30} />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 const Game = ({ coreSAL }) => {
   const [gameState, setGameState] = useState(coreSAL.getState());
   const onRoll = (diceValue) => {
     setGameState(coreSAL.playMove(diceValue));
   };
   return (
-    <div>
-      
+    <div className="flex justify-around" style={{ margin: "30px" }}>
       <Board board={gameState.board} />
-      <Dice onRoll={onRoll} randomGenerator={Math.random} />
+      <div className="flex flex-col items-center justify-around size-1/3">
+        <PlayersHeader players={gameState.players} />
+        <Dice onRoll={onRoll} randomGenerator={Math.random} />
+      </div>
     </div>
   );
 };
