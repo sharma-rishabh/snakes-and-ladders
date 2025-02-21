@@ -1,13 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CoreSAL } from "./CoreSAL";
 import styles from "./styles.module.css";
 import bg from "./assets/board.jpg";
 
-
+const Dice = ({ onRoll, randomGenerator }) => {
+  const getDiceValue = () => {
+    return Math.floor(randomGenerator() * 6) + 1;
+  };
+  return <div onClick={() => onRoll(getDiceValue())}>CLICK DICE</div>;
+};
 const Game = ({ coreSAL }) => {
   const [board, setBoard] = useState(coreSAL.getBoard());
-  const [diceValue, setDiceValue] = useState(1);
+  const onRoll = (diceValue) => {
+    setBoard(coreSAL.playMove(diceValue));
+  };
   return (
     <div>
       <div
@@ -28,14 +35,7 @@ const Game = ({ coreSAL }) => {
           );
         })}
       </div>
-      <button
-        onClick={() => {
-          setDiceValue(1);
-          setBoard(coreSAL.playMove(diceValue));
-        }}
-      >
-        play
-      </button>
+      <Dice onRoll={onRoll} randomGenerator={Math.random} />
     </div>
   );
 };
