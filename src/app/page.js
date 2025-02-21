@@ -3,6 +3,7 @@ import { useState } from "react";
 import { CoreSAL } from "./CoreSAL";
 import styles from "./styles.module.css";
 import bg from "./assets/board.jpg";
+import Confetti from "react-confetti-boom";
 
 const Dice = ({ onRoll, randomGenerator }) => {
   const [diceValue, setDiceValue] = useState(1);
@@ -117,6 +118,25 @@ const PlayersHeader = ({ players }) => {
     </div>
   );
 };
+
+const WinnerBanner = ({ winner }) => {
+  return (
+    <div
+      className="flex flex-col items-center justify-center w-full h-1/3 z-10 absolute"
+      style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+    >
+      <h1
+        className='text-4xl text-white mb-4'
+      >Winner: {winner.name}</h1>
+      <PlayerToken player={winner} size={50} />
+      <Confetti
+        mode="fall"
+        particleCount={500}
+        colors={["#ff577f", "#ff884b", "#ffd384", "#fff9b0"]}
+      />
+    </div>
+  );
+};
 const Game = ({ coreSAL }) => {
   const [gameState, setGameState] = useState(coreSAL.getState());
   const onRoll = (diceValue) => {
@@ -124,6 +144,7 @@ const Game = ({ coreSAL }) => {
   };
   return (
     <div className="flex justify-around" style={{ margin: "30px" }}>
+      {gameState.winner && <WinnerBanner winner={gameState.winner} />}
       <Board board={gameState.board} />
       <div className="flex flex-col items-center justify-around size-1/3">
         <PlayersHeader players={gameState.players} />

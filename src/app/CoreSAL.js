@@ -4,6 +4,7 @@ export class CoreSAL {
       { name: "Player 1", position: -1, color: "red", isPlaying: true },
       { name: "Player 2", position: -1, color: "blue", isPlaying: false },
     ];
+    this.gameOver = false;
     this.porters = [
       { start: 3, end: 55 },
       { start: 11, end: 49 },
@@ -63,14 +64,26 @@ export class CoreSAL {
     return currentPlayer;
   }
 
+  isOutOfBoard(position) {
+    return position > 99;
+  }
+
+  isGameOver(currentPlayer) {
+    return currentPlayer.position === 99;
+  }
+
   movePlayer(diceValue) {
     const currentPlayer = this.getCurrentPlayer();
     if (this.isFirstMove(currentPlayer)) {
       this.handleFirstMove(currentPlayer, diceValue);
       return this.players;
     }
-    const newPosition = currentPlayer.position + diceValue;
-    currentPlayer.position = this.getNewPosition(newPosition);
+    const newPosition = this.getNewPosition(currentPlayer.position + diceValue);
+    if (!this.isOutOfBoard(newPosition)) {
+      currentPlayer.position = newPosition;
+      this.gameOver = this.isGameOver(currentPlayer);
+      return this.players;
+    }
     return this.players;
   }
 
@@ -103,11 +116,15 @@ export class CoreSAL {
   }
 
   getState() {
-    return { board: this.getBoard(), players: this.players };
+    const winner = this.gameOver ? this.getCurrentPlayer() : null;
+    return { board: this.getBoard(), players: this.players, winner };
   }
 
   playMove(diceValue) {
     this.movePlayer(diceValue);
+    if (this.gameOver) {
+      return this.getState();
+    }
     this.updateCurrentPlayer();
     return this.getState();
   }
