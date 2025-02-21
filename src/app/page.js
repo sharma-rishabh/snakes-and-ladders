@@ -1,33 +1,35 @@
 "use client";
 import { useState } from "react";
 import { CoreSAL } from "./CoreSAL";
+import styles from "./styles.module.css";
 
 const Game = ({ coreSAL }) => {
   const [board, setBoard] = useState(coreSAL.getBoard());
   const [diceValue, setDiceValue] = useState(1);
   console.log(board);
   return (
-    <div
-      className="grid grid-cols-3 gap-x-2 gap-y-0"
-      style={{ width: "150px" }}
-    >
-      {board.map((cell, index) => {
-        return (
-          <div
-            key={index}
-            style={{ border: "1px solid white", width: "50px", height: "50px" }}
-            id={index}
-          >
-            {cell.players.map((player, playerIndex) => {
-              return (
-                <div key={playerIndex} style={{ color: player.color }}>
-                  {"O"}
-                </div>
-              );
-            })}
-          </div>
-        );
-      })}
+    <div>
+      <div
+        className={`grid grid-cols-10 gap-x-0 gap-y-0 bg-[url(/board.jpg)] ${styles.board}`}
+      >
+        {board.map((cell, index) => {
+          return (
+            <div
+              key={index}
+              id={index}
+              className={styles.cell}
+            >
+              {cell.players.map((player, playerIndex) => {
+                return (
+                  <div key={playerIndex} style={{ color: player.color }}>
+                    {"O"}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
       <button
         onClick={() => {
           setDiceValue(1);

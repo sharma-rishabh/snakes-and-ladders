@@ -6,8 +6,8 @@ export class CoreSAL {
       { name: "Player 2", position: 0, color: "blue" },
     ];
     this.porters = [
-      { start: 1, end: 3 },
-      { start: 4, end: 2 },
+      // { start: 1, end: 3 },
+      // { start: 4, end: 2 },
     ];
   }
 
@@ -37,8 +37,8 @@ export class CoreSAL {
   }
 
   getBoard() {
-    const rows = 3;
-    const columns = 3;
+    const rows = 10;
+    const columns = 10;
     const isEven = (num) => num % 2 === 0;
     const getRow = (rowNumber) => {
       return new Array(columns).fill(0).map((_, i) => {
