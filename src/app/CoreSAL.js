@@ -1,9 +1,8 @@
 export class CoreSAL {
   constructor() {
-    this.currentPlayerIndex = 0;
     this.players = [
-      { name: "Player 1", position: 0, color: "red" },
-      { name: "Player 2", position: 0, color: "blue" },
+      { name: "Player 1", position: 0, color: "red", isPlaying: true },
+      { name: "Player 2", position: 0, color: "blue", isPlaying: false },
     ];
     this.porters = [
       { start: 3, end: 55 },
@@ -30,17 +29,27 @@ export class CoreSAL {
     return newPosition;
   }
 
-  getNextPlayerIndex() {
-    return this.currentPlayerIndex === 0 ? 1 : 0;
+  getNextPlayerIndex(currentPlayerIndex) {
+    return currentPlayerIndex === 0 ? 1 : 0;
   }
 
-  updateCurrentPlayerIndex() {
-    this.currentPlayerIndex = this.getNextPlayerIndex();
-    return this.currentPlayerIndex;
+  getCurrentPlayer() {
+    return this.players.find((player) => player.isPlaying);
+  }
+
+  updateCurrentPlayer() {
+    const currentPlayer = this.getCurrentPlayer();
+    const currentPlayerIndex = this.players.findIndex(
+      (player) => player.isPlaying
+    );
+    const nextPlayerIndex = this.getNextPlayerIndex(currentPlayerIndex);
+    currentPlayer.isPlaying = false;
+    this.players[nextPlayerIndex].isPlaying = true;
+    return this.players;
   }
 
   movePlayer(diceValue) {
-    const currentPlayer = this.players[this.currentPlayerIndex];
+    const currentPlayer = this.getCurrentPlayer();
     const newPosition = currentPlayer.position + diceValue;
     currentPlayer.position = this.getNewPosition(newPosition);
     return this.players;
@@ -74,9 +83,13 @@ export class CoreSAL {
       .flat();
   }
 
+  getState() {
+    return { board: this.getBoard(), players: this.players };
+  }
+
   playMove(diceValue) {
     this.movePlayer(diceValue);
-    this.updateCurrentPlayerIndex();
-    return this.getBoard();
+    this.updateCurrentPlayer();
+    return this.getState();
   }
 }

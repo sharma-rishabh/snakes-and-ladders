@@ -10,31 +10,47 @@ const Dice = ({ onRoll, randomGenerator }) => {
   };
   return <div onClick={() => onRoll(getDiceValue())}>CLICK DICE</div>;
 };
+
+const Cell = ({ players, cellPosition }) => {
+  return (
+    <div key={cellPosition} id={cellPosition} className={styles.cell}>
+      {players.map((player, playerIndex) => {
+        return (
+          <div key={playerIndex} style={{ color: player.color }}>
+            {"O"}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+const Board = ({ board }) => {
+  return (
+    <div
+      className={`grid grid-cols-10 gap-x-0 gap-y-0] ${styles.board} -z-10`}
+      style={{ "background-image": `url(${bg.src})` }}
+    >
+      {board.map(({ players, cellPosition }) => {
+        return (
+          <Cell
+            players={players}
+            key={cellPosition}
+            cellPosition={cellPosition}
+          />
+        );
+      })}
+    </div>
+  );
+};
 const Game = ({ coreSAL }) => {
-  const [board, setBoard] = useState(coreSAL.getBoard());
+  const [gameState, setGameState] = useState(coreSAL.getState());
   const onRoll = (diceValue) => {
-    setBoard(coreSAL.playMove(diceValue));
+    setGameState(coreSAL.playMove(diceValue));
   };
   return (
     <div>
-      <div
-        className={`grid grid-cols-10 gap-x-0 gap-y-0] ${styles.board} -z-10`}
-        style={{ "background-image": `url(${bg.src})` }}
-      >
-        {board.map((cell, index) => {
-          return (
-            <div key={index} id={index} className={styles.cell}>
-              {cell.players.map((player, playerIndex) => {
-                return (
-                  <div key={playerIndex} style={{ color: player.color }}>
-                    {"O"}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
+      
+      <Board board={gameState.board} />
       <Dice onRoll={onRoll} randomGenerator={Math.random} />
     </div>
   );
