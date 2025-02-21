@@ -1,8 +1,8 @@
 export class CoreSAL {
   constructor() {
     this.players = [
-      { name: "Player 1", position: 0, color: "red", isPlaying: true },
-      { name: "Player 2", position: 0, color: "blue", isPlaying: false },
+      { name: "Player 1", position: -1, color: "red", isPlaying: true },
+      { name: "Player 2", position: -1, color: "blue", isPlaying: false },
     ];
     this.porters = [
       { start: 3, end: 55 },
@@ -48,8 +48,27 @@ export class CoreSAL {
     return this.players;
   }
 
+  isFirstMove(currentPlayer) {
+    return currentPlayer.position === -1;
+  }
+
+  canMakeFirstMove(diceValue) {
+    return diceValue === 1 || diceValue === 6;
+  }
+
+  handleFirstMove(currentPlayer, diceValue) {
+    if (this.canMakeFirstMove(diceValue)) {
+      currentPlayer.position = 0;
+    }
+    return currentPlayer;
+  }
+
   movePlayer(diceValue) {
     const currentPlayer = this.getCurrentPlayer();
+    if (this.isFirstMove(currentPlayer)) {
+      this.handleFirstMove(currentPlayer, diceValue);
+      return this.players;
+    }
     const newPosition = currentPlayer.position + diceValue;
     currentPlayer.position = this.getNewPosition(newPosition);
     return this.players;
