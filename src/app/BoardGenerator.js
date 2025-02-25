@@ -1,9 +1,9 @@
 export class BoardGenerator {
   constructor() {
-    this.board = [];
+    this.board = { board: [], transitioning: false };
   }
 
-  generateBoard(players) {
+  generateBoard(players, boardId, totalBoards) {
     const rows = 10;
     const columns = 10;
     const isEven = (num) => num % 2 === 0;
@@ -27,7 +27,13 @@ export class BoardGenerator {
       })
       .reverse()
       .flat();
-    return this.board;
+    return { board: this.board, transitioning: boardId !== totalBoards };
+  }
+
+  generateBoards(moves) {
+    return moves.map((move, boardId) =>
+      this.generateBoard(move, boardId + 1, moves.length)
+    );
   }
 
   getBoard() {

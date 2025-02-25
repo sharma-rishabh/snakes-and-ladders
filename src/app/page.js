@@ -6,11 +6,13 @@ import styles from "./styles.module.css";
 import bg from "./assets/board.jpg";
 import Confetti from "react-confetti-boom";
 
-const Dice = ({ onRoll, randomGenerator }) => {
+const Dice = ({ onRoll, randomGenerator, isDisabled }) => {
   const [diceValue, setDiceValue] = useState(1);
   const getDiceValue = () => {
     return Math.floor(randomGenerator() * 6) + 1;
   };
+  const color = isDisabled ? "gray" : "antiquewhite";
+  const cursor = isDisabled ? "not-allowed" : "pointer";
   return (
     <div
       className="flex flex-col items-center justify-around"
@@ -21,14 +23,17 @@ const Dice = ({ onRoll, randomGenerator }) => {
         style={{
           width: "50px",
           height: "50px",
-          backgroundColor: "antiquewhite",
+          backgroundColor: color,
           borderRadius: "15%",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          cursor: "pointer",
+          cursor: cursor,
         }}
         onClick={() => {
+          if (isDisabled) {
+            return;
+          }
           const value = getDiceValue();
           setDiceValue(value);
           onRoll(value);
@@ -48,19 +53,26 @@ const Cell = ({ players, cellPosition }) => {
       className={`${styles.cell} flex justify-around items-center`}
     >
       {players.map((player, playerIndex) => {
-        return <PlayerToken key={playerIndex} player={player} size={10} />;
+        return <PlayerToken key={playerIndex} player={player} size={15} />;
       })}
     </div>
   );
 };
 
-const Board = ({ moves, boardGenerator }) => {
+const Board = ({ moves, boardGenerator, onBoardTransitionComplete }) => {
   const [board, setBoard] = useState(boardGenerator.getBoard());
   useEffect(() => {
-    const boards = moves.map((move) => boardGenerator.generateBoard(move));
+    const boards = boardGenerator.generateBoards(moves);
+    if (boards.length === 0) {
+      onBoardTransitionComplete();
+      return;
+    }
     const timeoutIds = boards.map((newBoard, i) => {
       return setTimeout(() => {
-        setBoard(newBoard);
+        setBoard(newBoard.board);
+        if (!newBoard.transitioning) {
+          onBoardTransitionComplete();
+        }
       }, 500 * i);
     });
 
@@ -72,7 +84,7 @@ const Board = ({ moves, boardGenerator }) => {
   return (
     <div
       className={`grid grid-cols-10 gap-x-0 gap-y-0] ${styles.board} -z-10`}
-      style={{ "background-image": `url(${bg.src})` }}
+      style={{ backgroundImage: `url(${bg.src})` }}
     >
       {board.map(({ players, cellPosition }) => {
         return (
@@ -152,16 +164,30 @@ const WinnerBanner = ({ winner }) => {
 };
 const Game = ({ coreSAL, boardGenerator }) => {
   const [gameState, setGameState] = useState(coreSAL.getState());
+  const [isDiceDisabled, setIsDiceDisabled] = useState(false);
+  const onBoardTransitionComplete = () => {
+    setIsDiceDisabled(false);
+  };
+
   const onRoll = (diceValue) => {
+    setIsDiceDisabled(true);
     setGameState(coreSAL.playMove(diceValue));
   };
   return (
     <div className="flex justify-around" style={{ margin: "30px" }}>
       {gameState.winner && <WinnerBanner winner={gameState.winner} />}
-      <Board moves={gameState.moves} boardGenerator={boardGenerator} />
+      <Board
+        moves={gameState.moves}
+        boardGenerator={boardGenerator}
+        onBoardTransitionComplete={onBoardTransitionComplete}
+      />
       <div className="flex flex-col items-center justify-around size-1/3">
         <PlayersHeader players={gameState.players} />
-        <Dice onRoll={onRoll} randomGenerator={Math.random} />
+        <Dice
+          onRoll={onRoll}
+          randomGenerator={Math.random}
+          isDisabled={isDiceDisabled}
+        />
       </div>
     </div>
   );
@@ -170,6 +196,6 @@ const Game = ({ coreSAL, boardGenerator }) => {
 export default function Home() {
   const coreSAL = new CoreSAL();
   const boardGenerator = new BoardGenerator();
-  boardGenerator.generateBoard([]);
+  boardGenerator.generateBoard([], 1, 1);
   return <Game coreSAL={coreSAL} boardGenerator={boardGenerator} />;
 }
