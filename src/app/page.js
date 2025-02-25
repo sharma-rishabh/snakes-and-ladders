@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CoreSAL } from "./CoreSAL";
+import { BoardGenerator } from "./BoardGenerator";
 import styles from "./styles.module.css";
 import bg from "./assets/board.jpg";
 import Confetti from "react-confetti-boom";
@@ -53,7 +54,21 @@ const Cell = ({ players, cellPosition }) => {
   );
 };
 
-const Board = ({ board }) => {
+const Board = ({ moves, boardGenerator }) => {
+  const [board, setBoard] = useState(boardGenerator.getBoard());
+  useEffect(() => {
+    const boards = moves.map((move) => boardGenerator.generateBoard(move));
+    const timeoutIds = boards.map((newBoard, i) => {
+      return setTimeout(() => {
+        setBoard(newBoard);
+      }, 500 * i);
+    });
+
+    return () => {
+      timeoutIds.forEach((timeoutId) => clearTimeout(timeoutId));
+    };
+  }, [moves]);
+
   return (
     <div
       className={`grid grid-cols-10 gap-x-0 gap-y-0] ${styles.board} -z-10`}
@@ -125,9 +140,7 @@ const WinnerBanner = ({ winner }) => {
       className="flex flex-col items-center justify-center w-full h-1/3 z-10 absolute"
       style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
     >
-      <h1
-        className='text-4xl text-white mb-4'
-      >Winner: {winner.name}</h1>
+      <h1 className="text-4xl text-white mb-4">Winner: {winner.name}</h1>
       <PlayerToken player={winner} size={50} />
       <Confetti
         mode="fall"
@@ -137,7 +150,7 @@ const WinnerBanner = ({ winner }) => {
     </div>
   );
 };
-const Game = ({ coreSAL }) => {
+const Game = ({ coreSAL, boardGenerator }) => {
   const [gameState, setGameState] = useState(coreSAL.getState());
   const onRoll = (diceValue) => {
     setGameState(coreSAL.playMove(diceValue));
@@ -145,7 +158,7 @@ const Game = ({ coreSAL }) => {
   return (
     <div className="flex justify-around" style={{ margin: "30px" }}>
       {gameState.winner && <WinnerBanner winner={gameState.winner} />}
-      <Board board={gameState.board} />
+      <Board moves={gameState.moves} boardGenerator={boardGenerator} />
       <div className="flex flex-col items-center justify-around size-1/3">
         <PlayersHeader players={gameState.players} />
         <Dice onRoll={onRoll} randomGenerator={Math.random} />
@@ -156,5 +169,7 @@ const Game = ({ coreSAL }) => {
 
 export default function Home() {
   const coreSAL = new CoreSAL();
-  return <Game coreSAL={coreSAL} />;
+  const boardGenerator = new BoardGenerator();
+  boardGenerator.generateBoard([]);
+  return <Game coreSAL={coreSAL} boardGenerator={boardGenerator} />;
 }
