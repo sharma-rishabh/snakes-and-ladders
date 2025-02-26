@@ -124,7 +124,6 @@ export class CoreSAL {
   }
 
   playMove(diceValues) {
-    console.log(diceValues);
     this.lastMoves = [];
     this.movePlayer(diceValues);
     if (this.gameOver) {
