@@ -165,14 +165,21 @@ const WinnerBanner = ({ winner }) => {
 const Game = ({ coreSAL, boardGenerator }) => {
   const [gameState, setGameState] = useState(coreSAL.getState());
   const [isDiceDisabled, setIsDiceDisabled] = useState(false);
+  const [diceValues, setDiceValues] = useState([]);
   const onBoardTransitionComplete = () => {
     setIsDiceDisabled(false);
+    setDiceValues([]);
   };
 
   const onRoll = (diceValue) => {
-    setIsDiceDisabled(true);
-    setGameState(coreSAL.playMove(diceValue));
+    const newDiceValues = [...diceValues, diceValue];
+    setDiceValues(newDiceValues);
+    if (!coreSAL.canRollMore(newDiceValues)) {
+      setIsDiceDisabled(true);
+      setGameState(coreSAL.playMove(newDiceValues));
+    }
   };
+
   return (
     <div className="flex justify-around" style={{ margin: "30px" }}>
       {gameState.winner && <WinnerBanner winner={gameState.winner} />}
@@ -188,6 +195,9 @@ const Game = ({ coreSAL, boardGenerator }) => {
           randomGenerator={Math.random}
           isDisabled={isDiceDisabled}
         />
+        <h2>
+          Total dice value: {diceValues.reduce((curr, acc) => curr + acc, 0)}
+        </h2>
       </div>
     </div>
   );

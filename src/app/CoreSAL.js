@@ -87,7 +87,8 @@ export class CoreSAL {
     return currentPlayer.position === 99;
   }
 
-  movePlayer(diceValue) {
+  movePlayer(diceValues) {
+    const diceValue = diceValues.reduce((acc, curr) => acc + curr, 0);
     const currentPlayer = this.getCurrentPlayer();
     if (this.isFirstMove(currentPlayer)) {
       this.handleFirstMove(currentPlayer, diceValue);
@@ -122,13 +123,19 @@ export class CoreSAL {
     };
   }
 
-  playMove(diceValue) {
+  playMove(diceValues) {
+    console.log(diceValues);
     this.lastMoves = [];
-    this.movePlayer(diceValue);
+    this.movePlayer(diceValues);
     if (this.gameOver) {
       return this.getState();
     }
     this.updateCurrentPlayer();
     return this.getState();
+  }
+
+  canRollMore(diceValues) {
+    const lastDiceValue = diceValues[diceValues.length - 1];
+    return lastDiceValue === 6;
   }
 }
