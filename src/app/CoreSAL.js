@@ -5,7 +5,7 @@ export class CoreSAL {
       { name: "Player 2", position: -1, color: "blue", isPlaying: false },
     ];
     this.gameOver = false;
-    this.lastMoves = [];
+    this.lastMoves = [-1];
     this.lastPlayer = this.players[this.players.length - 1];
     this.porters = [
       { start: 3, end: 55 },
@@ -57,9 +57,9 @@ export class CoreSAL {
       (player) => player.isPlaying
     );
     const nextPlayerIndex = this.getNextPlayerIndex(currentPlayerIndex);
+    this.lastPlayer = { ...currentPlayer };
     currentPlayer.isPlaying = false;
     this.players[nextPlayerIndex].isPlaying = true;
-    this.lastPlayer = currentPlayer;
     return this.players;
   }
 
@@ -68,56 +68,73 @@ export class CoreSAL {
   }
 
   canMakeFirstMove(diceValue) {
-    return diceValue === 1 || diceValue === 6;
+    return diceValue === 1 || diceValue >= 6;
   }
 
   handleFirstMove(currentPlayer, diceValue) {
+    const moves = [-1];
     if (this.canMakeFirstMove(diceValue)) {
       currentPlayer.position = 0;
-      this.lastMoves = [0];
+      moves[0] = 0;
     }
-    return currentPlayer;
+    return moves;
   }
 
-  isOutOfBoard(positions) {
-    return positions[positions.length - 1] > 99;
+  isOutOfBoard(position) {
+    return position > 99;
   }
 
   isGameOver(currentPlayer) {
     return currentPlayer.position === 99;
   }
 
-  movePlayer(diceValues) {
-    const diceValue = diceValues.reduce((acc, curr) => acc + curr, 0);
-    const currentPlayer = this.getCurrentPlayer();
+  playOneMove(diceValue, currentPlayer) {
     if (this.isFirstMove(currentPlayer)) {
-      this.handleFirstMove(currentPlayer, diceValue);
-      return this.players;
+      return this.handleFirstMove(currentPlayer, diceValue);
     }
     const positions = this.getPositions(currentPlayer.position, diceValue);
+    currentPlayer.position = positions[positions.length - 1];
+    this.gameOver = this.isGameOver(currentPlayer);
+    return positions;
+  }
 
-    if (!this.isOutOfBoard(positions)) {
-      currentPlayer.position = positions[positions.length - 1];
-      this.lastMoves = positions;
-      this.gameOver = this.isGameOver(currentPlayer);
+  movePlayer(diceValues) {
+    const totalDiceValue = diceValues.reduce((acc, curr) => acc + curr, 0);
+    const currentPlayer = this.getCurrentPlayer();
+    const finalPosition = currentPlayer.position + totalDiceValue;
+
+    if (this.isOutOfBoard(finalPosition)) {
+      this.lastMoves = [currentPlayer.position];
       return this.players;
     }
+
+    const moves = diceValues.map((diceValue) => {
+      return this.playOneMove(diceValue, currentPlayer);
+    });
+    this.lastMoves = moves.flat();
     return this.players;
   }
 
   createMoves() {
-    return this.lastMoves.map((position) => {
-      return [
-        { ...this.lastPlayer, position },
-        ...this.getOtherPlayers(this.lastPlayer),
-      ];
+    const otherPlayers = this.getOtherPlayers(this.lastPlayer).map((player) => {
+      return { ...player, isPlaying: false };
     });
+    const moves = this.lastMoves.map((position) => {
+      return [{ ...this.lastPlayer, position }, ...otherPlayers];
+    });
+    const turnOverMove = [
+      { ...this.lastPlayer, isPlaying: false },
+      ...this.getOtherPlayers(this.lastPlayer),
+    ];
+    moves.push(turnOverMove);
+    return moves;
   }
 
   getState() {
     const winner = this.gameOver ? this.getCurrentPlayer() : null;
+    const moves = this.createMoves();
     return {
-      moves: this.createMoves(),
+      moves: moves,
       players: this.players,
       winner,
     };
