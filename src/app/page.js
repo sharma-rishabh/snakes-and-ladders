@@ -195,7 +195,7 @@ const Game = ({ coreSAL, boardGenerator }) => {
         boardGenerator={boardGenerator}
         onBoardTransitionComplete={onBoardTransitionComplete}
       />
-      <div className="flex flex-col items-center justify-around size-1/3">
+      <div className={styles.playerInformation}>
         <PlayersHeader players={gameState.players} />
         <Dice
           onRoll={onRoll}

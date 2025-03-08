@@ -18,6 +18,14 @@
   margin: 30px;
 }
 
+.playerInformation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  width: 33vw;
+}
+
 @media (max-width: 480px) {
   .boardContainer {
     width: 350px;
