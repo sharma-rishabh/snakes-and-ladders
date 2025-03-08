@@ -1,9 +1,9 @@
 export class CoreSAL {
-  constructor() {
-    this.players = [
-      { name: "Player 1", position: -1, color: "red", isPlaying: true },
-      { name: "Player 2", position: -1, color: "blue", isPlaying: false },
-    ];
+  constructor(players) {
+    this.players = players.map((player) => {
+      return { ...player, position: -1, isPlaying: false };
+    });
+    this.players[0].isPlaying = true;
     this.gameOver = false;
     this.lastMoves = [-1];
     this.lastPlayer = this.players[this.players.length - 1];
@@ -38,7 +38,7 @@ export class CoreSAL {
   }
 
   getNextPlayerIndex(currentPlayerIndex) {
-    return currentPlayerIndex === 0 ? 1 : 0;
+    return (currentPlayerIndex + 1) % this.players.length;
   }
 
   getCurrentPlayer() {

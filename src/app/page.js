@@ -137,12 +137,12 @@ const PlayersHeader = ({ players }) => {
   return (
     <div className="flex flex-col items-center w-full">
       <h1>Players</h1>
-      <div className="flex justify-around w-full">
+      <div className="flex justify-around">
         {players.map((player, playerIndex) => {
           return (
             <div
               key={playerIndex}
-              className="flex flex-col items-center justify-around h-24"
+              className="flex flex-col items-center justify-around h-24 w-24"
             >
               <h4>{player.name}</h4>
               <PlayerToken player={player} size={30} />
@@ -160,7 +160,7 @@ const WinnerBanner = ({ winner }) => {
       className="flex flex-col items-center justify-center w-full h-1/3 z-10 absolute"
       style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
     >
-      <h1 className="text-4xl text-white mb-4">Winner: {winner.name}</h1>
+      <h1 className="text-4xl text-white mb-4">{winner.name} Won!!</h1>
       <PlayerToken player={winner} size={50} />
       <Confetti
         mode="fall"
@@ -211,9 +211,97 @@ const Game = ({ coreSAL, boardGenerator }) => {
   );
 };
 
-export default function Home() {
-  const coreSAL = new CoreSAL();
+function PlayerFormModal({ handleSubmit }) {
+  const [players, setPlayers] = useState([
+    { name: "Player 1", color: "red", active: true },
+    { name: "Player 2", color: "blue", active: true },
+  ]);
+
+  const colors = ["red", "blue", "green", "yellow"];
+
+  const addPlayer = () => {
+    if (players.length < 4) {
+      setPlayers([
+        ...players,
+        {
+          name: `Player ${players.length + 1}`,
+          color: colors[players.length],
+          active: true,
+        },
+      ]);
+    }
+  };
+
+  const updatePlayer = (index, key, value) => {
+    const newPlayers = [...players];
+    newPlayers[index][key] = value;
+    setPlayers(newPlayers);
+  };
+
+  return (
+    <>
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+          <h2 className="text-xl font-bold mb-4 text-center">
+            Enter Player Details
+          </h2>
+
+          {/* Player Inputs */}
+          {players.map((player, index) => (
+            <div key={index} className="flex items-center justify-between mb-3">
+              <input
+                type="text"
+                value={player.name}
+                onChange={(e) => updatePlayer(index, "name", e.target.value)}
+                className="border p-2 rounded w-70"
+              />
+              <PlayerToken player={player} size={30} />
+            </div>
+          ))}
+
+          {/* Add Player Button */}
+          {players.length < 4 && (
+            <button
+              onClick={addPlayer}
+              className="block w-full border p-2 rounded text-gray-700 text-center my-2"
+            >
+              +
+            </button>
+          )}
+
+          <button
+            onClick={() => handleSubmit(players)}
+            className="w-full bg-gray-900 text-white py-2 rounded-lg mt-4"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+const StartGame = ({ players }) => {
+  const coreSAL = new CoreSAL(players);
   const boardGenerator = new BoardGenerator();
   boardGenerator.generateBoard([], 1, 1);
   return <Game coreSAL={coreSAL} boardGenerator={boardGenerator} />;
+};
+
+export default function Home() {
+  const [isGameStarted, setIsGameStarted] = useState(false);
+  const [players, setPlayers] = useState([]);
+  return (
+    <div>
+      {!isGameStarted && (
+        <PlayerFormModal
+          handleSubmit={(players) => {
+            setIsGameStarted(true);
+            setPlayers(players);
+          }}
+        />
+      )}
+      {isGameStarted && <StartGame players={players} />}
+    </div>
+  );
 }
