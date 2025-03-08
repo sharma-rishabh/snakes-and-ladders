@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { CoreSAL } from "./CoreSAL";
 import { BoardGenerator } from "./BoardGenerator";
 import styles from "./styles.module.css";
-import bg from "./assets/board.jpg";
 import Confetti from "react-confetti-boom";
+import Image from "next/image";
 
 const Dice = ({ onRoll, randomGenerator, isDisabled }) => {
   const [diceValue, setDiceValue] = useState(1);
@@ -82,19 +82,26 @@ const Board = ({ moves, boardGenerator, onBoardTransitionComplete }) => {
   }, [moves]);
 
   return (
-    <div
-      className={`grid grid-cols-10 gap-x-0 gap-y-0] ${styles.board} -z-10`}
-      style={{ backgroundImage: `url(${bg.src})` }}
-    >
-      {board.map(({ players, cellPosition }) => {
-        return (
-          <Cell
-            players={players}
-            key={cellPosition}
-            cellPosition={cellPosition}
-          />
-        );
-      })}
+    <div className={styles.boardContainer}>
+      <div
+        className={`grid grid-cols-10 gap-x-0 gap-y-0] ${styles.board} -z-10`}
+      >
+        {board.map(({ players, cellPosition }) => {
+          return (
+            <Cell
+              players={players}
+              key={cellPosition}
+              cellPosition={cellPosition}
+            />
+          );
+        })}
+      </div>
+      <Image
+        alt="board"
+        src="/board.jpg"
+        className={styles.boardImage}
+        fill={true}
+      />
     </div>
   );
 };
@@ -104,7 +111,7 @@ const PlayerToken = ({ player, size }) => {
   return (
     <span className="relative flex">
       <span
-        className={`absolute inline-flex ${ping} opacity-75`}
+        className={`absolute inline-flex ${ping} opacity-85`}
         style={{
           backgroundColor: player.color,
           width: size,
@@ -181,7 +188,7 @@ const Game = ({ coreSAL, boardGenerator }) => {
   };
 
   return (
-    <div className="flex justify-around" style={{ margin: "30px" }}>
+    <div className={styles.game}>
       {gameState.winner && <WinnerBanner winner={gameState.winner} />}
       <Board
         moves={gameState.moves}
