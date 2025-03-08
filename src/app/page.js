@@ -5,6 +5,7 @@ import { BoardGenerator } from "./BoardGenerator";
 import styles from "./styles.module.css";
 import Confetti from "react-confetti-boom";
 import Image from "next/image";
+import boardImage from "../../public/board.jpg";
 
 const Dice = ({ onRoll, randomGenerator, isDisabled }) => {
   const [diceValue, setDiceValue] = useState(1);
@@ -98,7 +99,7 @@ const Board = ({ moves, boardGenerator, onBoardTransitionComplete }) => {
       </div>
       <Image
         alt="board"
-        src="/board.jpg"
+        src={boardImage}
         className={styles.boardImage}
         fill={true}
       />
