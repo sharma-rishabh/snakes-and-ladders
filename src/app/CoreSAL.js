@@ -133,10 +133,19 @@ export class CoreSAL {
   getState() {
     const winner = this.gameOver ? this.getCurrentPlayer() : null;
     const moves = this.createMoves();
+    const otherPlayers = this.getOtherPlayers(this.lastPlayer);
     return {
       moves: moves,
       players: this.players,
       winner,
+      prevPlayers: this.players.map((player) => {
+        return {
+          ...player,
+          isPlaying: !otherPlayers.some(
+            (prevPlayer) => prevPlayer.color === player.color
+          ),
+        };
+      }),
     };
   }
 

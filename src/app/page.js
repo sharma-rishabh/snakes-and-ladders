@@ -174,17 +174,25 @@ const Game = ({ coreSAL, boardGenerator }) => {
   const [gameState, setGameState] = useState(coreSAL.getState());
   const [isDiceDisabled, setIsDiceDisabled] = useState(false);
   const [diceValues, setDiceValues] = useState([]);
+  const [players, setPlayers] = useState(gameState.prevPlayers);
+
   const onBoardTransitionComplete = () => {
     setIsDiceDisabled(false);
     setDiceValues([]);
+    setPlayers(gameState.players);
   };
+
+  const updateStates = (newState) => {
+    setGameState(newState);
+    setPlayers(newState.prevPlayers);
+  }
 
   const onRoll = (diceValue) => {
     const newDiceValues = [...diceValues, diceValue];
     setDiceValues(newDiceValues);
     if (!coreSAL.canRollMore(newDiceValues)) {
       setIsDiceDisabled(true);
-      setGameState(coreSAL.playMove(newDiceValues));
+      updateStates(coreSAL.playMove(newDiceValues));
     }
   };
 
@@ -197,7 +205,7 @@ const Game = ({ coreSAL, boardGenerator }) => {
         onBoardTransitionComplete={onBoardTransitionComplete}
       />
       <div className={styles.playerInformation}>
-        <PlayersHeader players={gameState.players} />
+        <PlayersHeader players={players} />
         <Dice
           onRoll={onRoll}
           randomGenerator={Math.random}
@@ -217,7 +225,7 @@ function PlayerFormModal({ handleSubmit }) {
     { name: "Player 2", color: "blue", active: true },
   ]);
 
-  const colors = ["red", "blue", "green", "yellow"];
+  const colors = ["red", "blue", "green", "purple"];
 
   const addPlayer = () => {
     if (players.length < 4) {
