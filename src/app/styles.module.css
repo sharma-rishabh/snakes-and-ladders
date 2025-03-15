@@ -26,6 +26,10 @@
   width: 33vw;
 }
 
+.totalScore {
+  width: 240px;
+}
+
 @media (max-width: 480px) {
   .boardContainer {
     width: 350px;
