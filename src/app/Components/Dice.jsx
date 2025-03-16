@@ -7,10 +7,13 @@ export const Dice = ({ onRoll, randomGenerator, isDisabled }) => {
   const getDiceValue = () => Math.floor(randomGenerator() * 6) + 1;
 
   const handleRoll = () => {
+    
     if (isDisabled || rolling) return;
 
     setRolling(true);
     setTimeout(() => {
+      console.log("Inside setTimeout");
+      
       const value = getDiceValue();
       setDice(value);
       onRoll(value);
@@ -31,6 +34,7 @@ export const Dice = ({ onRoll, randomGenerator, isDisabled }) => {
             cursor: isDisabled ? "not-allowed" : "pointer",
           }}
           onClick={handleRoll}
+          id='dice'
         >
           <motion.div
             className="absolute w-full h-full"
