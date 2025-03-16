@@ -37,6 +37,7 @@ export const Board = ({ moves, boardGenerator, onBoardTransitionComplete }) => {
               players={players}
               key={cellPosition}
               cellPosition={cellPosition}
+              testId={"cell"}
             />
           );
         })}
